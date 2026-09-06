@@ -1,0 +1,33 @@
+{
+  "name": "nexuscart-api",
+  "version": "1.0.0",
+  "description": "A RESTful E-Commerce Backend API built with Node.js, Express, and MongoDB",
+  "homepage": "https://github.com/akashbandla/NexusCart-API#readme",
+  "bugs": {
+    "url": "https://github.com/akashbandla/NexusCart-API/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akashbandla/NexusCart-API.git"
+  },
+  "license": "ISC",
+  "author": "akashbandla",
+  "type": "module",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.9.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
