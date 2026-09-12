@@ -17,21 +17,66 @@ class ProductService {
         return createdProduct;
     }
 
-    async getProducts(isAdmin){
-        try{
-            let products;
+    async getProducts(isAdmin, filters) {
+        const query = {};
 
-            if(isAdmin){
-                products = await Product.find();
-            }else{
-                products = await Product.find({
-                    published: true
-                })
-            }
-            return products;
-        }catch(err){
-            throw err;
+        if (!isAdmin) {
+            query.published = true;
         }
+
+        if (filters.category) {
+            query.category = filters.category;
+        }
+
+        if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+            query.price = {};
+
+            if (filters.minPrice !== undefined) {
+                query.price.$gte = Number(filters.minPrice);
+            }
+
+            if (filters.maxPrice !== undefined) {
+                query.price.$lte = Number(filters.maxPrice);
+            }
+        }
+
+
+        let sort = {};
+
+        if (filters.sort === "price_asc") {
+            sort.price = 1;
+        }
+
+        if (filters.sort === "price_desc") {
+            sort.price = -1;
+        }
+
+        if (filters.sort === "newest") {
+            sort.createdAt = -1;
+        }
+
+
+        const page = Number(filters.page) || 1;
+        const limit = Number(filters.limit) || 10;
+        const skip = (page - 1) * limit;
+
+
+        const totalProducts = await Product.countDocuments(query);
+
+        const products = await Product.find(query)
+           .sort(sort)
+           .skip(skip)
+           .limit(limit);
+
+
+        const totalPages = Math.ceil(totalProducts / limit);
+        return {
+            products,
+            page,
+            limit,
+            totalProducts,
+            totalPages
+        };
     }
 
     async getProductById(productId, isAdmin){
