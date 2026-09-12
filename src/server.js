@@ -1,9 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
+import 'dotenv/config';
+
+import authRoutes from './routes/auth.routes.js';
+import productRoutes from './routes/products.routes.js';
+import authenticate from "./middlewares/auth.middleware.js";
+
 const app = express();
+
 app.use(express.json());
+
+app.use('/api/auth',authRoutes);
+
+app.use(authenticate);
+
+app.use('/api/products', productRoutes);
 
 async function start() {
     try {
