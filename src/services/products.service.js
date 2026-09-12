@@ -54,6 +54,35 @@ class ProductService {
             throw err
         }
     }
+
+    async updateProduct(id, payload) {
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            payload,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!updatedProduct) {
+            throw new Error("Product not found");
+        }
+
+        return updatedProduct;
+    }
+
+    async deleteProduct(id) {
+
+        const deletedProduct = await Product.findByIdAndDelete(id);
+
+        if (!deletedProduct) {
+            throw new Error("Product not found");
+        }
+
+        return deletedProduct;
+    }
 }
 
 export default ProductService;
