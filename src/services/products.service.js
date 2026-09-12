@@ -128,6 +128,66 @@ class ProductService {
 
         return deletedProduct;
     }
+
+
+    async importProducts(products) {
+        const validatedProducts = [];
+
+        for (const product of products) {
+            if (
+                !product.name ||
+                !product.description ||
+                product.price === undefined ||
+                product.price === "" ||
+                !product.category ||
+                product.stock === undefined ||
+                product.stock === "" ||
+                product.published === undefined ||
+                product.published === ""
+            ) {
+                throw new Error("Invalid product data in CSV");
+            }
+
+            const price = Number(product.price);
+            const stock = Number(product.stock);
+
+            if (isNaN(price) || isNaN(stock)) {
+                throw new Error(
+                    "Price and stock must be valid numbers"
+                );
+            }
+
+            if (
+                product.published !== "true" &&
+                product.published !== "false"
+            ) {
+                throw new Error(
+                    "Published must be true or false"
+                );
+            }
+
+            validatedProducts.push({
+                name: product.name,
+                description: product.description,
+                price,
+                category: product.category,
+                stock,
+                published: product.published === "true"
+            });
+        }
+
+        const insertedProducts = await Product.insertMany(validatedProducts);
+        return insertedProducts;
+    }
+
+    async exportProducts() {
+        try{
+            const products = await Product.find().lean();
+            return products;
+        }catch(err){
+            throw err
+        }
+    }
 }
 
 export default ProductService;

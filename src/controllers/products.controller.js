@@ -1,4 +1,7 @@
 import ProductService from "../services/products.service.js";
+import fs from "fs";
+import csv from "csv-parser";
+import { Parser } from "json2csv";
 
 const productService = new ProductService();
 
@@ -179,10 +182,113 @@ async function deleteProduct(req, res) {
     }
 }
 
+
+async function importProducts(req, res) {
+    let filePath;
+    try {
+
+        if (!req.file) {
+            return res.status(400).json({
+                message: "CSV file is required"
+            });
+        }
+
+        filePath = req.file.path;
+
+        const products = [];
+
+        fs.createReadStream(filePath)
+            .pipe(csv())
+            .on("data", (row) => {
+                products.push(row);
+            })
+            .on("end", async () => {
+                try {
+                    if (products.length === 0) {
+                        throw new Error("CSV file is empty");
+                    }
+
+                    const importedProducts = await productService.importProducts(products);
+
+                    return res.status(201).json({
+                        message: "Products imported successfully",
+                        count: importedProducts.length
+                    });
+
+                } catch (error) {
+                    return res.status(400).json({
+                        message: error.message
+                    });
+                } finally {
+                    fs.unlink(filePath, (error) => {
+                        if (error) {
+                            console.log(
+                                "Failed to delete temporary file:",
+                                error.message
+                            );
+                        }
+                    });
+                }
+            })
+            .on("error", (error) => {
+                return res.status(400).json({
+                    message: "Failed to read CSV file"
+                });
+            });
+    } catch (error) {
+        if (filePath) {
+            fs.unlink(filePath, () => {});
+        }
+        return res.status(400).json({
+            message: error.message
+        });
+    }
+}
+
+
+async function exportProducts(req, res) {
+    try {
+        const products = await productService.exportProducts();
+
+        if (products.length === 0) {
+            return res.status(404).json({
+                message: "No products available for export"
+            });
+        }
+
+        const fields = [
+            "name",
+            "description",
+            "price",
+            "category",
+            "stock",
+            "published",
+            "createdAt",
+            "updatedAt"
+        ];
+
+        const parser = new Parser({ fields });
+
+        const csv = parser.parse(products);
+
+        res.header("Content-Type", "text/csv");
+        res.attachment("products.csv");
+
+        return res.status(200).send(csv);
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
 export { 
     createProduct,
     getProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    importProducts,
+    exportProducts
 };
