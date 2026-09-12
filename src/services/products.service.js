@@ -16,6 +16,44 @@ class ProductService {
 
         return createdProduct;
     }
+
+    async getProducts(isAdmin){
+        try{
+            let products;
+
+            if(isAdmin){
+                products = await Product.find();
+            }else{
+                products = await Product.find({
+                    published: true
+                })
+            }
+            return products;
+        }catch(err){
+            throw err;
+        }
+    }
+
+    async getProductById(productId, isAdmin){
+        try{
+            let product;
+            if(isAdmin){
+                product = await Product.findById(productId)
+            }else{
+                product = await Product.findOne({
+                    _id : productId,
+                    published:true
+                })
+            }
+
+            if(!product){
+                throw new Error("Product not found");
+            }
+            return product;
+        }catch(err){
+            throw err
+        }
+    }
 }
 
 export default ProductService;

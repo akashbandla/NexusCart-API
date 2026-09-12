@@ -46,4 +46,47 @@ async function createProduct(req, res) {
     }
 }
 
-export { createProduct };
+async function getProducts(req, res){
+    try{
+        const isAdmin = req.user.role === 'admin';
+
+        const products = await productService.getProducts(isAdmin);
+
+        res.json({
+            message: "Products Fetched succesfully",
+            products
+        });
+    }catch(err){
+        res.status(500).json({message: err.message})
+    }
+}
+
+async function getProductById(req, res){
+    try{
+        const { id } = req.params;
+
+        if(!productId){
+            throw new Error("Product Id required to fetch a specific product")
+        }
+
+        const isAdmin = req.user.role === 'admin';
+
+        const product = await productService.getProductById(
+            id, 
+            isAdmin
+        );
+
+        res.json({
+            message: "Product Fetched succesfully",
+            product
+        });
+    }catch(err){
+        res.status(404).json({message: err.message})
+    }
+}
+
+export { 
+    createProduct,
+    getProducts,
+    getProductById
+};
