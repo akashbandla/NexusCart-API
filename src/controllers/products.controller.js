@@ -13,7 +13,6 @@ async function createProduct(req, res) {
             published
         } = req.body;
 
-        // Required field validation
         if (!name || !description || price === undefined) {
             throw new Error("name, description and price are required");
         }
@@ -85,8 +84,83 @@ async function getProductById(req, res){
     }
 }
 
+async function updateProduct(req, res) {
+    try {
+        const { id } = req.params;
+
+        const {
+            name,
+            description,
+            price,
+            category,
+            stock,
+            published
+        } = req.body;
+
+
+        const updateData = {};
+
+        if (name !== undefined) {
+            updateData.name = name;
+        }
+
+        if (description !== undefined) {
+            updateData.description = description;
+        }
+
+        if (price !== undefined) {
+            updateData.price = price;
+        }
+
+        if (category !== undefined) {
+            updateData.category = category;
+        }
+
+        if (stock !== undefined) {
+            updateData.stock = stock;
+        }
+
+        if (published !== undefined) {
+            updateData.published = published;
+        }
+
+        const updatedProduct =await productService.updateProduct(id, updateData);
+
+        return res.status(200).json({
+            message: "Product updated successfully",
+            product: updatedProduct
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        });
+
+    }
+}
+
+
+async function deleteProduct(req, res) {
+    try {
+        const { id } = req.params;
+
+        const deletedProduct = await productService.deleteProduct(id);
+
+        return res.status(200).json({
+            message: "Product deleted successfully",
+            product: deletedProduct
+        });
+    } catch (error) {
+        return res.status(404).json({
+            message: error.message
+        });
+    }
+}
+
 export { 
     createProduct,
     getProducts,
-    getProductById
+    getProductById,
+    updateProduct,
+    deleteProduct
 };
