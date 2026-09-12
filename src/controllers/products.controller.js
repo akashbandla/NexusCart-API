@@ -1,30 +1,49 @@
 import ProductService from "../services/products.service.js";
-import ProductService from "../services/products.service.js";
 
-const ProductService = new ProductService();
+const productService = new ProductService();
 
-async function createproduct(req,res){
-    try{
-        const{name,description,price,category,stock,published} = req.body;
-        if(!name,!description, !price){
-            throw new Error("name,description,price should required");
+async function createProduct(req, res) {
+    try {
+        const {
+            name,
+            description,
+            price,
+            category,
+            stock,
+            published
+        } = req.body;
+
+        // Required field validation
+        if (!name || !description || price === undefined) {
+            throw new Error("name, description and price are required");
         }
-        if(!category, !stock, !published){
-            throw new Error("category,stock,published should required");
+
+        if (!category || stock === undefined || published === undefined) {
+            throw new Error("category, stock and published are required");
         }
-        newUser = {}
-        if(name !== undefined) newUser.name = name;
-        if(description !== undefined) newUser.description = description;
-        if(price!== undefined) newUser.price = price;
-        if(category!== undefined) newUser.category = category;
-        if(stock!== undefined) newUser.stock = stock;
-        if(published!== undefined) newUser.published = published;
-     return res.status(201).json({ message: "Product created successfully", product: product });
+
+        const newProduct = {
+            name,
+            description,
+            price,
+            category,
+            stock,
+            published
+        };
+
+        const createdProduct =
+            await productService.createProduct(newProduct);
+
+        return res.status(201).json({
+            message: "Product created successfully",
+            product: createdProduct
+        });
 
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).json({
+            message: error.message
+        });
     }
 }
 
 export { createProduct };
-    

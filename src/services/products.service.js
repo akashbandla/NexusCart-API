@@ -1,29 +1,21 @@
-import Product from "../models/products.model.js"
+import Product from "../models/products.model.js";
 
-class ProductService{
- async createproduct(product){
-    try{
-        if(!product){
-            throw new Error("product data is required to register");
-        }
-        const registeredproduct = await Product.create(product);
+class ProductService {
 
-        if(!registeredproduct){
-            throw new Error("product is not created")
+    async createProduct(product) {
+
+        if (!product) {
+            throw new Error("Product data is required");
         }
-        return registeredproduct
-    }catch(err){
-        return err
+
+        const createdProduct = await Product.create(product);
+
+        if (!createdProduct) {
+            throw new Error("Product was not created");
+        }
+
+        return createdProduct;
     }
-
- }
 }
- export default ProductService;
 
-
-    
-        
-    
-
-    
-
+export default ProductService;
